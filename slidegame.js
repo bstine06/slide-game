@@ -84,26 +84,47 @@ function handleKeyDownEvent(key) {
   switch (key) {
     case "ArrowLeft":
         // Left pressed
-        playerNodeStyle.left = updatePositionByPercentage(playerNodeStyle.left, -10);
+        try {
+          player.x = (obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]<player.x))
+                                       .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
+                                       [0])[0]+1;
+        } catch (e) {
+          if (e instanceof TypeError) player.x = 0;
+        }
+        playerNodeStyle.left = updatePositionToCoordinates(playerNodeStyle.left, player.x);
         break;
     case "ArrowRight":
         // Right pressed
-        let targetCoordinates = 
-                      (obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]>player.x))
-                                          .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
-                                          [0]);
-        let destinationX = targetCoordinates[0]-1;
-        player.x = destinationX;
-        playerNodeStyle.left = updatePositionToCoordinates(playerNodeStyle.left, destinationX);
+        try {
+          player.x = (obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]>player.x))
+                                       .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
+                                       [0])[0]-1;
+        } catch (e) {
+          if (e instanceof TypeError) player.x = 9;
+        }
+        playerNodeStyle.left = updatePositionToCoordinates(playerNodeStyle.left, player.x);
         break;
     case "ArrowUp":
         // Up pressed
-        playerNodeStyle.top = updatePositionByPercentage(playerNodeStyle.top, -10);
+        try {
+          player.y = (obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]<player.y))
+                                       .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
+                                       [0])[1]+1;
+        } catch (e) {
+          if (e instanceof TypeError) player.y = 0;
+        }
+        playerNodeStyle.top = updatePositionToCoordinates(playerNodeStyle.top, player.y);
         break;
     case "ArrowDown":
         // Down pressed
-        player.y += 1;
-        playerNodeStyle.top = updatePositionByPercentage(playerNodeStyle.top, 10);
+        try {
+          player.y = (obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]>player.y))
+                                       .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
+                                       [0])[1]-1;
+        } catch (e) {
+          if (e instanceof TypeError) player.y = 9;
+        }
+        playerNodeStyle.top = updatePositionToCoordinates(playerNodeStyle.top, player.y);
         break;
   }
 }
