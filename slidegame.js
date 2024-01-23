@@ -1,68 +1,66 @@
 
-//GENERATE PLAYER ELEMENT AND NODE ON BOARD
 
-const playerNode = document.createElement("div");
-let playerNodeStyle = playerNode.style;
-let gameContainer = document.getElementById("game-container");
+//declare dom element for game
 
-playerNode.classList.add('player');
-gameContainer.appendChild(playerNode);
+const gameDomElement = document.getElementById("game");
 
-//create player object for backend logic that changes based on keypress.
-//playerNode (visual representation) will update based on changes to backend object!
+
+//Board Class
+
+class Board {
+  constructor(size, countObstacles) {
+    this.size = size;
+    this.countObstacles = countObstacles;
+    this.boardArr = Array(this.size).fill().map(() => Array(this.size).fill(0))
+    this.obstacleCoordinates = [];
+  }
+  generateRandomBoard() {
+    for (let i=0; i<this.countObstacles; i++) {
+      let obstaclePosX = Math.floor(Math.random()*this.size);
+      let obstaclePosY = Math.floor(Math.random()*this.size);
+      if (this.boardArr[obstaclePosX][obstaclePosY] === 0) {
+        this.boardArr[obstaclePosX][obstaclePosY] = 1;
+        this.obstacleCoordinates.push([obstaclePosY,obstaclePosX]);
+      } else {
+        i--;
+      }
+    }
+    gameDomElement.style.height = "100%";
+  }
+  updateBoardDisplay() {
+    for (let i=0; i<this.countObstacles; i++) {
+      let obstacle = document.createElement("div");
+      obstacle.classList.add("obstacle");
+      obstacle.style.left = this.obstacleCoordinates[i][0]*(100/this.size)+"%";
+      obstacle.style.top = this.obstacleCoordinates[i][1]*(100/this.size)+"%";
+      obstacle.style.width = (100/this.size)+"%";
+      obstacle.style.height = (100/this.size)+"%";
+      gameDomElement.appendChild(obstacle);
+    }
+  }
+}
+
+
+//Player class
+
 class Player {
-  constructor(x, y) {
+  constructor(x, y, boardSize) {
     this.x = x;
     this.y = y;
+    this.boardSize = boardSize;
+    this.node = document.createElement("div");
+    this.style = this.node.style;
+    this.node.classList.add('player');
+    gameDomElement.appendChild(this.node);
+    this.updateDisplay();
+    this.style.width = (100/this.boardSize)+"%";
+    this.style.height = (100/this.boardSize)+"%";
+  }
+  updateDisplay() {
+    this.style.top = this.y * (100/this.boardSize) + "%";
+    this.style.left= this.x * (100/this.boardSize) + "%";
   }
 }
-const player = new Player(0,0);
-
-//BOARD GENERATION
-
-const BOARD_SIZE = 10;
-let countObstacles = 10;
-let obstacleCoordinates = [];
-let board = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(0))
-
-function generateRandomBoard() {
-  let currentObstacles = countObstacles;
-  while (currentObstacles > 0) {
-    let obstaclePosX = Math.floor(Math.random()*10);
-    let obstaclePosY = Math.floor(Math.random()*10);
-    if (board[obstaclePosX][obstaclePosY] === 0) {
-      board[obstaclePosX][obstaclePosY] = 1;
-      currentObstacles -= 1;
-      obstacleCoordinates.push([obstaclePosY,obstaclePosX]);
-    }
-  }
-  obstacleCoordinates.sort(sortFunction);
-}
-
-function sortFunction(a, b) {
-    if (a[0] === b[0]) {
-        return 0;
-    }
-    else {
-        return (a[0] < b[0]) ? -1 : 1;
-    }
-}
-
-function updateBoardDisplay() {
-  for (let i=0; i<countObstacles; i++) {
-    let obstacle = document.createElement("div");
-    obstacle.classList.add("obstacle");
-    obstacle.style.left = obstacleCoordinates[i][0]*10+"%";
-    obstacle.style.top = obstacleCoordinates[i][1]*10+"%";
-    gameContainer.appendChild(obstacle);
-  }
-}
-
-
-
-
-generateRandomBoard();
-updateBoardDisplay();
 
 
 //HANDLE KEYPRESSES
@@ -71,60 +69,58 @@ document.addEventListener('keydown', function(event) {
   handleKeyDownEvent(event.key);
 });
 
-function updatePositionByPercentage(positionAttribute, amountPercentage) {
-  newPositionAttributeValue = (amountPercentage+Number(positionAttribute.split("%")[0]))+"%";
-  return newPositionAttributeValue;
-}
-
-function updatePositionToCoordinates(positionAttribute, coordinate) {
-  return positionAttribute = coordinate*10 + "%";
-}
-
 function handleKeyDownEvent(key) {
   switch (key) {
     case "ArrowLeft":
         // Left pressed
         try {
-          player.x = (obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]<player.x))
+          player.x = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]<player.x))
                                        .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
                                        [0])[0]+1;
         } catch (e) {
           if (e instanceof TypeError) player.x = 0;
         }
-        playerNodeStyle.left = updatePositionToCoordinates(playerNodeStyle.left, player.x);
         break;
     case "ArrowRight":
         // Right pressed
         try {
-          player.x = (obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]>player.x))
+          player.x = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]>player.x))
                                        .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
                                        [0])[0]-1;
         } catch (e) {
-          if (e instanceof TypeError) player.x = 9;
+          if (e instanceof TypeError) player.x = myBoard.size-1;
         }
-        playerNodeStyle.left = updatePositionToCoordinates(playerNodeStyle.left, player.x);
         break;
     case "ArrowUp":
         // Up pressed
         try {
-          player.y = (obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]<player.y))
+          player.y = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]<player.y))
                                        .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
                                        [0])[1]+1;
         } catch (e) {
           if (e instanceof TypeError) player.y = 0;
         }
-        playerNodeStyle.top = updatePositionToCoordinates(playerNodeStyle.top, player.y);
         break;
     case "ArrowDown":
         // Down pressed
         try {
-          player.y = (obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]>player.y))
+          player.y = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]>player.y))
                                        .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
                                        [0])[1]-1;
         } catch (e) {
-          if (e instanceof TypeError) player.y = 9;
+          if (e instanceof TypeError) player.y = myBoard.size-1;
         }
-        playerNodeStyle.top = updatePositionToCoordinates(playerNodeStyle.top, player.y);
+        
         break;
   }
+  player.updateDisplay();
 }
+
+
+//Begin game here (generate board and player)
+
+let myBoard = new Board(120, 2000);
+myBoard.generateRandomBoard();
+myBoard.updateBoardDisplay();
+
+const player = new Player(5,5, myBoard.size, myBoard.size);
