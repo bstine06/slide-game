@@ -11,12 +11,24 @@ body {
   width: 600px;
   height: 600px;
   background-color: #222;
+  position: relative;
 }
 
 .player {
   width: 10%;
   height: 10%;
   background-color: red;
-  position: relative;
+  position: absolute;
   left:0%;
+  top:0%;
+  transition: all 0.3s ease;
+}
+
+.obstacle {
+  width: 10%;
+  height: 10%;
+  background-color: #aaa;
+  position: absolute;
+  left:0%;
+  top:0%;
 }
