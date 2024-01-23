@@ -1,0 +1,22 @@
+body {
+  background-color: black;
+  color: white;
+}
+
+.container {
+  padding: 40px;
+}
+
+.game-container {
+  width: 600px;
+  height: 600px;
+  background-color: #222;
+}
+
+.player {
+  width: 10%;
+  height: 10%;
+  background-color: red;
+  position: relative;
+  left:0%;
+}
