@@ -63,6 +63,32 @@ class Player {
 }
 
 
+//Item class
+
+class Item {
+  constructor(board) {
+    this.x=0;
+    this.y=0;
+    this.boardSize = board.size;
+    this.node = document.createElement("div");
+    this.style = this.node.style;
+    this.node.classList.add('item');
+    gameDomElement.appendChild(this.node);
+    this.style.width = (100/this.boardSize)+"%";
+    this.style.height= (100/this.boardSize)+"%";
+    this.findRandomPlacement(board.obstacleCoordinates);
+  }
+  findRandomPlacement(obstacleCoordinates) {
+    do {
+      this.x = Math.floor(Math.random()*this.boardSize);
+      this.y = Math.floor(Math.random()*this.boardSize);
+    } while (obstacleCoordinates.includes([this.x,this.y]));
+    this.style.top = this.y * (100/this.boardSize) + "%";
+    this.style.left = this.x * (100/this.boardSize) + "%";
+  }
+}
+
+
 //HANDLE KEYPRESSES
 
 document.addEventListener('keydown', function(event) {
@@ -117,10 +143,21 @@ function handleKeyDownEvent(key) {
 }
 
 
+
+
 //Begin game here (generate board and player)
 
-let myBoard = new Board(120, 2000);
+let myBoard = new Board(40, 500);
 myBoard.generateRandomBoard();
 myBoard.updateBoardDisplay();
 
-const player = new Player(5,5, myBoard.size, myBoard.size);
+let player = new Player(5,5, myBoard.size, myBoard.size);
+const item1 = new Item(myBoard);
+
+const resetBtn = document.querySelector("#reset-btn");
+
+resetBtn.addEventListener("click", function() {
+  player.x = 5;
+  player.y = 5;
+  player.updateDisplay();
+});
