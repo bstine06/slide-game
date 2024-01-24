@@ -13,6 +13,9 @@ class Board {
     this.countObstacles = countObstacles;
     this.boardArr = Array(this.size).fill().map(() => Array(this.size).fill(0))
     this.obstacleCoordinates = [];
+    this.player = new Item(size, "player");
+    this.finish = new Item(size, "finish");
+    this.resetToThisState;
   }
   generateRandomBoard() {
     for (let i=0; i<this.countObstacles; i++) {
@@ -25,7 +28,9 @@ class Board {
         i--;
       }
     }
-    gameDomElement.style.height = "100%";
+    this.player.setXY(this.findRandomUnoccupiedCoordinates());
+    this.finish.setXY(this.findRandomUnoccupiedCoordinates());
+    this.resetToThisState = [this.obstacleCoordinates, this.player.getXY(), this.finish.getXY()];
   }
   updateBoardDisplay() {
     for (let i=0; i<this.countObstacles; i++) {
@@ -47,20 +52,48 @@ class Board {
     } while (this.obstacleCoordinates.filter((e)=>(e[0]===randomX && e[1]===randomY)).length!==0);
     return [randomX,randomY];
   }
+
+  reset(){
+    this.obstacleCoordinates = this.resetToThisState[0];
+    this.player.setXY(this.resetToThisState[1]);
+    this.finish.setXY(this.resetToThisState[2]);
+  }
+
+  movePlayerLeft(){
+    this.player.setX(this.obstacleCoordinates.filter(xy => xy[1] === this.player.getY() && xy[0] < this.player.getX())
+                                                .concat([[-1, this.player.getY()]])
+                                                .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
+                                                [0][0]+1);
+  }
+  movePlayerRight(){
+    this.player.setX(this.obstacleCoordinates.filter(xy => xy[1] === this.player.getY() && xy[0] > this.player.getX())
+                                                .concat([[this.size, this.player.getY()]])
+                                                .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
+                                                [0][0]-1);
+  }
+  movePlayerUp(){
+    this.player.setY(this.obstacleCoordinates.filter(xy => xy[0] === this.player.getX() && xy[1] < this.player.getY())
+                                                .concat([[this.player.getX(),-1]])
+                                                .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
+                                                [0][1]+1);
+  }
+  movePlayerDown(){
+    this.player.setY(this.obstacleCoordinates.filter(xy => xy[0] === this.player.getX() && xy[1] > this.player.getY())
+                                                .concat([[this.player.getX(),this.size]])
+                                                .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
+                                                [0][1]-1);
+  }
 }
 
 
-//Player class
-
-class Player {
-  constructor(board) {
-    this.xy = board.findRandomUnoccupiedCoordinates();
-    this.x = this.xy[0];
-    this.y = this.xy[1];
-    this.boardSize = board.size;
+class Item {
+  constructor(boardSize, itemType) {
+    this.x = 5;
+    this.y = 5;
+    this.boardSize = boardSize;
     this.node = document.createElement("div");
     this.style = this.node.style;
-    this.node.classList.add('player');
+    this.node.classList.add(itemType);
     gameDomElement.appendChild(this.node);
     this.updateDisplay();
     this.style.width = (100/this.boardSize)+"%";
@@ -70,29 +103,29 @@ class Player {
     this.style.left= this.x * (100/this.boardSize) + "%";
     this.style.top = this.y * (100/this.boardSize) + "%";
   }
-}
-
-
-//Item class
-
-class Item {
-  constructor(board) {
-    this.xy = board.findRandomUnoccupiedCoordinates();
-    this.boardSize = board.size;
-    this.node = document.createElement("div");
-    this.style = this.node.style;
-    this.node.classList.add('item');
-    gameDomElement.appendChild(this.node);
+  setX(x){
+    this.x=x;
     this.updateDisplay();
-    this.style.width = (100/this.boardSize)+"%";
-    this.style.height= (100/this.boardSize)+"%";
   }
-  updateDisplay() {
-    this.style.left= this.xy[0] * (100/this.boardSize) + "%";
-    this.style.top = this.xy[1] * (100/this.boardSize) + "%";
+  setY(y){
+    this.y=y;
+    this.updateDisplay();
+  }
+  setXY(xyPair){
+    this.x=xyPair[0];
+    this.y=xyPair[1];
+    this.updateDisplay();
+  }
+  getX(){
+    return this.x;
+  }
+  getY(){
+    return this.y;
+  }
+  getXY(){
+    return [this.x, this.y];
   }
 }
-
 
 //HANDLE KEYPRESSES
 
@@ -103,49 +136,25 @@ document.addEventListener('keydown', function(event) {
 function handleKeyDownEvent(key) {
   switch (key) {
     case "ArrowLeft":
-        // Left pressed
-        try {
-          player.x = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]<player.x))
-                                       .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
-                                       [0])[0]+1;
-        } catch (e) {
-          if (e instanceof TypeError) player.x = 0;
-        }
+        myBoard.movePlayerLeft();
         break;
     case "ArrowRight":
-        // Right pressed
-        try {
-          player.x = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[1]===player.y)&&(xyPair[0]>player.x))
-                                       .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
-                                       [0])[0]-1;
-        } catch (e) {
-          if (e instanceof TypeError) player.x = myBoard.size-1;
-        }
+        myBoard.movePlayerRight();
         break;
     case "ArrowUp":
-        // Up pressed
-        try {
-          player.y = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]<player.y))
-                                       .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
-                                       [0])[1]+1;
-        } catch (e) {
-          if (e instanceof TypeError) player.y = 0;
-        }
+        myBoard.movePlayerUp();
         break;
     case "ArrowDown":
-        // Down pressed
-        try {
-          player.y = (myBoard.obstacleCoordinates.filter((xyPair)=>(xyPair[0]===player.x)&&(xyPair[1]>player.y))
-                                       .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
-                                       [0])[1]-1;
-        } catch (e) {
-          if (e instanceof TypeError) player.y = myBoard.size-1;
-        }
-        
+        myBoard.movePlayerDown();
         break;
   }
-  player.updateDisplay();
 }
+
+
+const resetBtn = document.querySelector("#reset-btn");
+resetBtn.addEventListener("click", function() {
+  myBoard.reset();
+});
 
 
 
@@ -156,13 +165,4 @@ let myBoard = new Board(20, 100);
 myBoard.generateRandomBoard();
 myBoard.updateBoardDisplay();
 
-let player = new Player(myBoard);
-const item1 = new Item(myBoard);
 
-const resetBtn = document.querySelector("#reset-btn");
-
-resetBtn.addEventListener("click", function() {
-  player.x = 5;
-  player.y = 5;
-  player.updateDisplay();
-});
