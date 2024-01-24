@@ -38,16 +38,26 @@ class Board {
       gameDomElement.appendChild(obstacle);
     }
   }
+  findRandomUnoccupiedCoordinates() {
+    let randomX = 0;
+    let randomY = 0;
+    do {
+      randomX = Math.floor(Math.random()*this.size);
+      randomY = Math.floor(Math.random()*this.size);
+    } while (this.obstacleCoordinates.filter((e)=>(e[0]===randomX && e[1]===randomY)).length!==0);
+    return [randomX,randomY];
+  }
 }
 
 
 //Player class
 
 class Player {
-  constructor(x, y, boardSize) {
-    this.x = x;
-    this.y = y;
-    this.boardSize = boardSize;
+  constructor(board) {
+    this.xy = board.findRandomUnoccupiedCoordinates();
+    this.x = this.xy[0];
+    this.y = this.xy[1];
+    this.boardSize = board.size;
     this.node = document.createElement("div");
     this.style = this.node.style;
     this.node.classList.add('player');
@@ -57,8 +67,8 @@ class Player {
     this.style.height = (100/this.boardSize)+"%";
   }
   updateDisplay() {
-    this.style.top = this.y * (100/this.boardSize) + "%";
     this.style.left= this.x * (100/this.boardSize) + "%";
+    this.style.top = this.y * (100/this.boardSize) + "%";
   }
 }
 
@@ -67,27 +77,19 @@ class Player {
 
 class Item {
   constructor(board) {
-    this.x=0;
-    this.y=0;
+    this.xy = board.findRandomUnoccupiedCoordinates();
     this.boardSize = board.size;
     this.node = document.createElement("div");
     this.style = this.node.style;
     this.node.classList.add('item');
     gameDomElement.appendChild(this.node);
+    this.updateDisplay();
     this.style.width = (100/this.boardSize)+"%";
     this.style.height= (100/this.boardSize)+"%";
-    this.findRandomPlacement(board.obstacleCoordinates);
   }
-  findRandomPlacement(obstacleCoordinates) {
-    do {
-      this.x = Math.floor(Math.random()*this.boardSize);
-      this.y = Math.floor(Math.random()*this.boardSize);
-    } while (obstacleCoordinates.filter((e)=>(e[0]===this.x && e[1]===this.y)).length!==0);
-    console.log(obstacleCoordinates);
-    console.log(`ITEM COORDS: ${this.x}, ${this.y}`);
-    console.log(obstacleCoordinates.includes([this.x,this.y]));
-    this.style.top = this.y * (100/this.boardSize) + "%";
-    this.style.left = this.x * (100/this.boardSize) + "%";
+  updateDisplay() {
+    this.style.left= this.xy[0] * (100/this.boardSize) + "%";
+    this.style.top = this.xy[1] * (100/this.boardSize) + "%";
   }
 }
 
@@ -150,11 +152,11 @@ function handleKeyDownEvent(key) {
 
 //Begin game here (generate board and player)
 
-let myBoard = new Board(40, 500);
+let myBoard = new Board(20, 100);
 myBoard.generateRandomBoard();
 myBoard.updateBoardDisplay();
 
-let player = new Player(5,5, myBoard.size, myBoard.size);
+let player = new Player(myBoard);
 const item1 = new Item(myBoard);
 
 const resetBtn = document.querySelector("#reset-btn");
