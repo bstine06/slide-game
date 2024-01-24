@@ -82,7 +82,10 @@ class Item {
     do {
       this.x = Math.floor(Math.random()*this.boardSize);
       this.y = Math.floor(Math.random()*this.boardSize);
-    } while (obstacleCoordinates.includes([this.x,this.y]));
+    } while (obstacleCoordinates.filter((e)=>(e[0]===this.x && e[1]===this.y)).length!==0);
+    console.log(obstacleCoordinates);
+    console.log(`ITEM COORDS: ${this.x}, ${this.y}`);
+    console.log(obstacleCoordinates.includes([this.x,this.y]));
     this.style.top = this.y * (100/this.boardSize) + "%";
     this.style.left = this.x * (100/this.boardSize) + "%";
   }

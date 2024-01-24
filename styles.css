@@ -32,7 +32,7 @@ h2 {
   left:0%;
   top:0%;
   transition: all 0.3s ease;
-  box-shadow: 0 0 5px black inset;
+  box-shadow: 2px 2px 5px black ;
 }
 
 .obstacle {
@@ -42,15 +42,17 @@ h2 {
   position: absolute;
   left:0%;
   top:0%;
+  box-shadow: 2px 2px 5px black;
 }
 
 .item {
   width: 10%;
   height: 10%;
-  background-color: rgba(26, 175, 26,0.3);
+  background-color: rgb(26, 175, 26);
   position: absolute;
   left:0%;
   top:0%;
+  box-shadow: 2px 2px 5px black inset;
 }
 
 .reset-btn {
