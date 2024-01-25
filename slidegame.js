@@ -50,14 +50,33 @@ class Board {
       o.displayWithAnimation();
     });
     this.player.setXY(this.resetToThisState[1]);
+    this.player.node.classList.remove("player-wins");
+    this.player.node.style.backgroundColor = "red";
     this.finish.setXY(this.resetToThisState[2]);
   }
   finishLevel(){
-      setTimeout(() => {
-        this.obstacles.forEach(o => o.node.parentNode.removeChild(o.node));
-        this.obstacles = [];
-        this.generateRandomBoard();
-      }, "600");
+    setTimeout(()=>{
+      this.animateFinish();
+      //this.clearBoard();
+      this.displayPostGame();
+    }, "280");
+  }
+  clearBoard(){
+    this.obstacles.forEach(o => o.eraseWithAnimation());
+    this.player.eraseWithAnimation();
+    this.finish.eraseWithAnimation();
+    this.obstacles = [];
+  }
+  displayPostGame(){
+    console.log("POSTGAME");
+  }
+  animateFinish(){
+    this.player.style.backgroundColor = "rgb(26, 175, 26)";
+    this.player.node.classList.add('player-wins');
+    
+    // setTimeout(()=>{
+    //   this.player.node.classList.remove("player-wins");
+    // }, "4000");
   }
 
 
@@ -133,7 +152,7 @@ class Item {
     this.node = document.createElement("div");
     this.style = this.node.style;
     this.node.classList.add(itemType);
-    gameDomElement.appendChild(this.node);
+    this.displayWithAnimation();
     this.updateDisplay();
     this.style.width = (100/this.boardSize)+"%";
     this.style.height = (100/this.boardSize)+"%";

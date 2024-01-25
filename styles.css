@@ -35,6 +35,20 @@ h2 {
   box-shadow: 2px 2px 5px black ;
 }
 
+.player-wins {
+  box-shadow: none;
+  z-index: 10000 !important;
+  animation: green-glow 2s infinite;
+  animation-timing-function: ease-in;
+}
+
+@keyframes green-glow {
+  10%{
+    background-color: hsl(120, 74%, 59%);
+    box-shadow: 0 0 35px 20px hsl(120, 74%, 49%);
+  }
+}
+
 .obstacle {
   width: 10%;
   height: 10%;
@@ -50,7 +64,7 @@ h2 {
 .finish {
   width: 10%;
   height: 10%;
-  background-color: rgb(26, 175, 26);
+  background-color: hsl(120, 74%, 19%);
   position: absolute;
   left:0%;
   top:0%;
