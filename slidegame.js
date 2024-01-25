@@ -49,28 +49,55 @@ class Board {
   }
 
   movePlayerLeft(){
-    this.player.setX(this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] < this.player.getX())
+    let newX = (this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] < this.player.getX())
                                                 .concat([[-1, this.player.getY()]])
                                                 .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
                                                 [0][0]+1);
+    if (this.finish.getY() === this.player.getY()) {
+      if (this.isBetween(this.finish.getX(), newX, this.player.getX())) {
+        newX = this.finish.getX();
+      }
+    }
+    this.player.setX(newX);
   }
   movePlayerRight(){
-    this.player.setX(this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] > this.player.getX())
+    let newX = (this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] > this.player.getX())
                                                 .concat([[this.size, this.player.getY()]])
                                                 .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
                                                 [0][0]-1);
+    if (this.finish.getY() === this.player.getY()) {
+      if (this.isBetween(this.finish.getX(), this.player.getX(), newX)) {
+        newX = this.finish.getX();
+      }
+    }
+    this.player.setX(newX);
   }
   movePlayerUp(){
-    this.player.setY(this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] < this.player.getY())
+    let newY = (this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] < this.player.getY())
                                                 .concat([[this.player.getX(),-1]])
                                                 .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
                                                 [0][1]+1);
+    if (this.finish.getX() === this.player.getX()) {
+      if (this.isBetween(this.finish.getY(), newY, this.player.getY())) {
+        newY = this.finish.getY();
+      }
+    }
+    this.player.setY(newY);
   }
   movePlayerDown(){
-    this.player.setY(this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] > this.player.getY())
+    let newY = (this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] > this.player.getY())
                                                 .concat([[this.player.getX(),this.size]])
                                                 .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
                                                 [0][1]-1);
+    if (this.finish.getX() === this.player.getX()) {
+      if (this.isBetween(this.finish.getY(), this.player.getY(), newY)) {
+        newY = this.finish.getY();
+      }
+    }
+    this.player.setY(newY);
+  }
+  isBetween(number, lowerBound, upperBound) {
+    return (number >= lowerBound && number <= upperBound);
   }
   triggerExplosion(){
     let xRange = [this.player.getX()-1, this.player.getX(), this.player.getX()+1];
@@ -168,7 +195,7 @@ resetBtn.addEventListener("click", function() {
 
 //Begin game here (generate board and player)
 
-let myBoard = new Board(20, 100);
+let myBoard = new Board(10, 20);
 myBoard.generateRandomBoard();
 
 
