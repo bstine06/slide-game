@@ -44,7 +44,6 @@ h2 {
   top:0%;
   box-shadow: 2px 2px 5px black;
   animation-duration: 0.3s;
-  animation-iteration-count: 1;
   animation-timing-function: linear;
 }
 
@@ -69,10 +68,10 @@ h2 {
 }
 
 .outgoing-animation {
-  animation-name: shrink;
+  animation-name: growfade;
 }
 
-@keyframes shrink {
+@keyframes growfade {
   from {
     transform: scale(1);
     opacity: 100%;
@@ -81,5 +80,21 @@ h2 {
   to {
     transform: scale(1.2);
     opacity: 0%;
+  }
+}
+
+.incoming-animation {
+  animation-name: ungrowfade;
+}
+
+@keyframes ungrowfade {
+  from {
+    transform: scale(1.2);
+    opacity: 0%;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 100%;
   }
 }

@@ -19,11 +19,16 @@ class Board {
   generateRandomBoard() {
     for (let i=0; i<this.countObstacles; i++) {
       let newObstacle = new Item(this.size, "obstacle");
+      let lightness = Math.floor(Math.random() * 20 + 40);
+      newObstacle.style.backgroundColor = `hsl(0,0%,${lightness}%)`;
+      newObstacle.style.zIndex = i+3;
       newObstacle.setXY(this.findRandomUnoccupiedCoordinates());
       this.obstacles.push(newObstacle);
     }
     this.player.setXY(this.findRandomUnoccupiedCoordinates());
+    this.player.style.zIndex = 2;
     this.finish.setXY(this.findRandomUnoccupiedCoordinates());
+    this.finish.style.zIndex = 1;
     this.resetToThisState = [this.obstacles, this.player.getXY(), this.finish.getXY()];
     console.log(this.obstacles.length);
   }
@@ -41,9 +46,10 @@ class Board {
   }
 
   reset(){
-    console.log("reset called");
     this.obstacles = this.resetToThisState[0];
-    this.obstacles.filter(o => o.node.parentNode===null).forEach(o => gameDomElement.appendChild(o.node));
+    this.obstacles.filter(o => o.node.parentNode===null).forEach(o => {
+      o.displayWithAnimation();
+    });
     this.player.setXY(this.resetToThisState[1]);
     this.finish.setXY(this.resetToThisState[2]);
   }
@@ -148,10 +154,17 @@ class Item {
     return [this.x, this.y];
   }
   eraseWithAnimation(){
-    console.log(`REMOVING ${this}`)
     this.node.classList.add("outgoing-animation");
     setTimeout(() => {
       this.node.parentNode.removeChild(this.node);
+      this.node.classList.remove("outgoing-animation");
+    }, "280");
+  }
+  displayWithAnimation(){
+    this.node.classList.add("incoming-animation");
+    gameDomElement.appendChild(this.node);
+    setTimeout(() => {
+      this.node.classList.remove("incoming-animation");
     }, "280");
   }
 }
@@ -195,7 +208,7 @@ resetBtn.addEventListener("click", function() {
 
 //Begin game here (generate board and player)
 
-let myBoard = new Board(10, 20);
+let myBoard = new Board(20, 100);
 myBoard.generateRandomBoard();
 
 
