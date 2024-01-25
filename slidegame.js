@@ -30,7 +30,6 @@ class Board {
     this.finish.setXY(this.findRandomUnoccupiedCoordinates());
     this.finish.style.zIndex = 1;
     this.resetToThisState = [this.obstacles, this.player.getXY(), this.finish.getXY()];
-    console.log(this.obstacles.length);
   }
   findRandomUnoccupiedCoordinates() {
     let randomX = 0;
@@ -53,6 +52,14 @@ class Board {
     this.player.setXY(this.resetToThisState[1]);
     this.finish.setXY(this.resetToThisState[2]);
   }
+  finishLevel(){
+      setTimeout(() => {
+        this.obstacles.forEach(o => o.node.parentNode.removeChild(o.node));
+        this.obstacles = [];
+        this.generateRandomBoard();
+      }, "600");
+  }
+
 
   movePlayerLeft(){
     let newX = (this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] < this.player.getX())
@@ -62,6 +69,7 @@ class Board {
     if (this.finish.getY() === this.player.getY()) {
       if (this.isBetween(this.finish.getX(), newX, this.player.getX())) {
         newX = this.finish.getX();
+        this.finishLevel();
       }
     }
     this.player.setX(newX);
@@ -74,6 +82,7 @@ class Board {
     if (this.finish.getY() === this.player.getY()) {
       if (this.isBetween(this.finish.getX(), this.player.getX(), newX)) {
         newX = this.finish.getX();
+        this.finishLevel();
       }
     }
     this.player.setX(newX);
@@ -86,6 +95,7 @@ class Board {
     if (this.finish.getX() === this.player.getX()) {
       if (this.isBetween(this.finish.getY(), newY, this.player.getY())) {
         newY = this.finish.getY();
+        this.finishLevel();
       }
     }
     this.player.setY(newY);
@@ -98,6 +108,7 @@ class Board {
     if (this.finish.getX() === this.player.getX()) {
       if (this.isBetween(this.finish.getY(), this.player.getY(), newY)) {
         newY = this.finish.getY();
+        this.finishLevel();
       }
     }
     this.player.setY(newY);
