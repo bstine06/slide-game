@@ -25,18 +25,8 @@ class Board {
     this.player.setXY(this.findRandomUnoccupiedCoordinates());
     this.finish.setXY(this.findRandomUnoccupiedCoordinates());
     this.resetToThisState = [this.obstacles, this.player.getXY(), this.finish.getXY()];
+    console.log(this.obstacles.length);
   }
-  // updateBoardDisplay() {
-  //   for (let i=0; i<this.obstacles.length; i++) {
-  //     let obstacle = document.createElement("div");
-  //     obstacle.classList.add("obstacle");
-  //     obstacle.style.left = this.getObstacleXYs()[i][0]*(100/this.size)+"%";
-  //     obstacle.style.top = this.getObstacleXYs()[i][1]*(100/this.size)+"%";
-  //     obstacle.style.width = (100/this.size)+"%";
-  //     obstacle.style.height = (100/this.size)+"%";
-  //     gameDomElement.appendChild(obstacle);
-  //   }
-  // }
   findRandomUnoccupiedCoordinates() {
     let randomX = 0;
     let randomY = 0;
@@ -51,7 +41,9 @@ class Board {
   }
 
   reset(){
+    console.log("reset called");
     this.obstacles = this.resetToThisState[0];
+    this.obstacles.filter(o => o.node.parentNode===null).forEach(o => gameDomElement.appendChild(o.node));
     this.player.setXY(this.resetToThisState[1]);
     this.finish.setXY(this.resetToThisState[2]);
   }
@@ -83,13 +75,7 @@ class Board {
   triggerExplosion(){
     let xRange = [this.player.getX()-1, this.player.getX(), this.player.getX()+1];
     let yRange = [this.player.getY()-1, this.player.getY(), this.player.getY()+1];
-    let elementsToDelete = (this.obstacles.filter(o => xRange.includes(o.getX()) && yRange.includes(o.getY())));
-    console.log(elementsToDelete);
-    elementsToDelete.forEach(item => {
-      // Remove the DOM element from its parent
-      item.node.parentNode.removeChild(item.node);
-      // Delete the JavaScript object
-    });
+    this.obstacles.filter(o => xRange.includes(o.getX()) && yRange.includes(o.getY())).forEach(o => o.eraseWithAnimation());
     this.obstacles = (this.obstacles.filter(o => !(xRange.includes(o.getX()) && yRange.includes(o.getY()))));
   }
 }
@@ -134,6 +120,13 @@ class Item {
   getXY(){
     return [this.x, this.y];
   }
+  eraseWithAnimation(){
+    console.log(`REMOVING ${this}`)
+    this.node.classList.add("outgoing-animation");
+    setTimeout(() => {
+      this.node.parentNode.removeChild(this.node);
+    }, "280");
+  }
 }
 
 //HANDLE KEYPRESSES
@@ -156,8 +149,11 @@ function handleKeyDownEvent(key) {
     case "ArrowDown":
         myBoard.movePlayerDown();
         break;
-    case " ":
+    case "b":
         myBoard.triggerExplosion();
+        break;
+    case "r":
+        myBoard.reset();
   }
 }
 
