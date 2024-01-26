@@ -31,6 +31,49 @@ class Board {
     this.finish.style.zIndex = 1;
     this.resetToThisState = [this.obstacles, this.player.getXY(), this.finish.getXY()];
   }
+
+
+
+
+  findAvailableMoves(currentXY, board) {
+    let obstacleXYs = board.getObstacleXYs();
+    obstacleXYs.filter(obstacleXY => obstacleXY[0]===currentX || obstacleXY[1]===currentY);
+    //get left move
+    
+  }
+
+  findLeftMoveDestination(currentXY) {
+    return [this.getObstacleXYs().concat([[this.finish.getX()-1, this.finish.getY()]])
+                          .filter(obstacleXY => obstacleXY[1] === currentXY[1] && obstacleXY[0] < currentXY[0])
+                          .concat([[-1, currentXY[1]]])
+                          .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
+                          [0][0]+1,currentXY[1]];
+  }
+  findRightMoveDestination(currentXY) {
+    return [this.getObstacleXYs().concat([[this.finish.getX()+1, this.finish.getY()]])
+                          .filter(obstacleXY => obstacleXY[1] === currentXY[1] && obstacleXY[0] > currentXY[0])
+                          .concat([[this.size, currentXY[1]]])
+                          .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
+                          [0][0]-1,currentXY[1]];
+  }
+  findUpMoveDestination(currentXY) {
+    return [currentXY[0], this.getObstacleXYs().concat([[this.finish.getX(), this.finish.getY()-1]])
+                          .filter(obstacleXY => obstacleXY[0] === currentXY[0] && obstacleXY[1] < currentXY[1])
+                          .concat([[currentXY[0], -1]])
+                          .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
+                          [0][1]+1];
+  }
+  findDownMoveDestination(currentXY) {
+    return [currentXY[0], this.getObstacleXYs().concat([[this.finish.getX(), this.finish.getY()+1]])
+                          .filter(obstacleXY => obstacleXY[0] === currentXY[0] && obstacleXY[1] > currentXY[1])
+                          .concat([[currentXY[0], this.size]])
+                          .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
+                          [0][1]-1];
+  }
+
+
+
+
   findRandomUnoccupiedCoordinates() {
     let randomX = 0;
     let randomY = 0;
@@ -55,6 +98,7 @@ class Board {
     this.finish.setXY(this.resetToThisState[2]);
   }
   finishLevel(){
+    if (this.player.getX() !== this.finish.getX() || this.player.getY() !== this.finish.getY()) return;
     setTimeout(()=>{
       this.animateFinish();
       //this.clearBoard();
@@ -81,57 +125,19 @@ class Board {
 
 
   movePlayerLeft(){
-    let newX = (this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] < this.player.getX())
-                                                .concat([[-1, this.player.getY()]])
-                                                .sort((a,b) => (a[0]<b[0]) ? 1 : -1)
-                                                [0][0]+1);
-    if (this.finish.getY() === this.player.getY()) {
-      if (this.isBetween(this.finish.getX(), newX, this.player.getX())) {
-        newX = this.finish.getX();
-        this.finishLevel();
-      }
-    }
-    this.player.setX(newX);
+    
   }
   movePlayerRight(){
-    let newX = (this.getObstacleXYs().filter(xy => xy[1] === this.player.getY() && xy[0] > this.player.getX())
-                                                .concat([[this.size, this.player.getY()]])
-                                                .sort((a,b) => (a[0]>b[0]) ? 1 : -1)
-                                                [0][0]-1);
-    if (this.finish.getY() === this.player.getY()) {
-      if (this.isBetween(this.finish.getX(), this.player.getX(), newX)) {
-        newX = this.finish.getX();
-        this.finishLevel();
-      }
-    }
-    this.player.setX(newX);
+    
   }
   movePlayerUp(){
-    let newY = (this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] < this.player.getY())
-                                                .concat([[this.player.getX(),-1]])
-                                                .sort((a,b) => (a[1]<b[1]) ? 1 : -1)
-                                                [0][1]+1);
-    if (this.finish.getX() === this.player.getX()) {
-      if (this.isBetween(this.finish.getY(), newY, this.player.getY())) {
-        newY = this.finish.getY();
-        this.finishLevel();
-      }
-    }
-    this.player.setY(newY);
+    
   }
   movePlayerDown(){
-    let newY = (this.getObstacleXYs().filter(xy => xy[0] === this.player.getX() && xy[1] > this.player.getY())
-                                                .concat([[this.player.getX(),this.size]])
-                                                .sort((a,b) => (a[1]>b[1]) ? 1 : -1)
-                                                [0][1]-1);
-    if (this.finish.getX() === this.player.getX()) {
-      if (this.isBetween(this.finish.getY(), this.player.getY(), newY)) {
-        newY = this.finish.getY();
-        this.finishLevel();
-      }
-    }
-    this.player.setY(newY);
+    
   }
+
+
   isBetween(number, lowerBound, upperBound) {
     return (number >= lowerBound && number <= upperBound);
   }
@@ -208,22 +214,30 @@ document.addEventListener('keydown', function(event) {
 function handleKeyDownEvent(key) {
   switch (key) {
     case "ArrowLeft":
-        myBoard.movePlayerLeft();
-        break;
+    case "a":
+      myBoard.player.setXY(myBoard.findLeftMoveDestination(myBoard.player.getXY()));
+      myBoard.finishLevel();
+      break;
     case "ArrowRight":
-        myBoard.movePlayerRight();
-        break;
+    case "d":
+      myBoard.player.setXY(myBoard.findRightMoveDestination(myBoard.player.getXY()));
+      myBoard.finishLevel();
+      break;
     case "ArrowUp":
-        myBoard.movePlayerUp();
-        break;
+    case "w":
+      myBoard.player.setXY(myBoard.findUpMoveDestination(myBoard.player.getXY()));
+      myBoard.finishLevel();
+      break;
     case "ArrowDown":
-        myBoard.movePlayerDown();
-        break;
+    case "s":
+      myBoard.player.setXY(myBoard.findDownMoveDestination(myBoard.player.getXY()));
+      myBoard.finishLevel();
+      break;
     case "b":
-        myBoard.triggerExplosion();
-        break;
+      myBoard.triggerExplosion();
+      break;
     case "r":
-        myBoard.reset();
+      myBoard.reset();
   }
 }
 
