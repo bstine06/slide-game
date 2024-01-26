@@ -36,11 +36,15 @@ class Board {
 
 
   findAvailableMoves(currentXY, board) {
-    let obstacleXYs = board.getObstacleXYs();
-    obstacleXYs.filter(obstacleXY => obstacleXY[0]===currentX || obstacleXY[1]===currentY);
-    //get left move
-    
+    let availableMoves = [];
+    availableMoves.push(this.findLeftMoveDestination(currentXY));
+    availableMoves.push(this.findRightMoveDestination(currentXY));
+    availableMoves.push(this.findUpMoveDestination(currentXY));
+    availableMoves.push(this.findDownMoveDestination(currentXY));
+    availableMoves = availableMoves.filter(xy => !xy.every((value, index) => value === currentXY[index]));
+    console.table(availableMoves);
   }
+
 
   findLeftMoveDestination(currentXY) {
     return [this.getObstacleXYs().concat([[this.finish.getX()-1, this.finish.getY()]])
@@ -122,21 +126,6 @@ class Board {
     //   this.player.node.classList.remove("player-wins");
     // }, "4000");
   }
-
-
-  movePlayerLeft(){
-    
-  }
-  movePlayerRight(){
-    
-  }
-  movePlayerUp(){
-    
-  }
-  movePlayerDown(){
-    
-  }
-
 
   isBetween(number, lowerBound, upperBound) {
     return (number >= lowerBound && number <= upperBound);
@@ -238,6 +227,10 @@ function handleKeyDownEvent(key) {
       break;
     case "r":
       myBoard.reset();
+    case "i":
+      console.log("INFO:");
+      console.log("AVAILABLE MOVES:");
+      myBoard.findAvailableMoves(myBoard.player.getXY(),myBoard);
   }
 }
 
